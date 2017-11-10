@@ -4,7 +4,6 @@ import React from 'react'
 import ReactDOM from 'react-dom'
 import jsdom from 'mocha-jsdom'
 import FontAwesome from '../src'
-import srOnlyStyle from '../src/screen-reader-styles'
 
 describe('react-fontawesome', () => {
   let component
@@ -140,28 +139,16 @@ describe('react-fontawesome', () => {
     })
   })
   context('Using ariaLabel prop', () => {
-    it('should not render sub span tag if ariaLabel prop is not specified', () => {
-      component = ReactDOM.render(
-        <FontAwesome {...props} />,
-        document.getElementById('root')
-      )
-      expect(ReactDOM.findDOMNode(component).children.length).to.be.equal(0)
-    })
-
-    it('should render sub span tag if ariaLabel prop is specified', () => {
+    it('should not set aria-hidden attr if ariaLabel prop is specified', () => {
       props = { ariaLabel: 'foobar', name: 'rocket' }
-      component = ReactDOM.render(
-        <FontAwesome {...props} />,
-        document.getElementById('root')
-      )
+      component = ReactDOM.render(<FontAwesome {...props} />, document.getElementById('root'))
 
-      let children = ReactDOM.findDOMNode(component).children
-      expect(children.length).to.be.equal(1)
-      expect(children[0].tagName).to.be.equal('SPAN')
-      expect(children[0].textContent).to.be.equal('foobar')
-      Object.keys(srOnlyStyle).forEach(key =>
-        expect(children[0].style[key]).to.be.equal(srOnlyStyle[key])
-      )
+      const mountedComponent = ReactDOM.findDOMNode(component)
+      const ariaHidden = mountedComponent.getAttribute('aria-hidden')
+      const ariaLabel = mountedComponent.getAttribute('aria-label')
+
+      expect(ariaHidden).to.equal('false')
+      expect(ariaLabel).to.equal('foobar')
     })
   })
 })
